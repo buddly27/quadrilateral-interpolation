@@ -30,7 +30,7 @@ export default function App() {
             >
                 <Toolbar>
                     <Typography variant="h6" noWrap>
-                        Color Interpo
+                        Color Interpolation
                     </Typography>
                 </Toolbar>
             </AppBar>
