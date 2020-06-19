@@ -2,19 +2,23 @@ import React from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import Toolbar from "@material-ui/core/Toolbar";
-import Checkbox from "@material-ui/core/Checkbox";
 import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import InputSlider from "./InputSlider.js";
 
 
 const drawerWidth = 320;
+
 
 const useStyles = makeStyles((theme) => ({
     drawer: {
         width: drawerWidth,
         flexShrink: 0,
+    },
+    label: {
+        minWidth: 60
     },
     drawerPaper: {
         width: drawerWidth,
@@ -31,8 +35,12 @@ const useStyles = makeStyles((theme) => ({
 export default function AppDrawer(props) {
     const classes = useStyles();
     const {
-        gridVisible,
-        drawGrid,
+        redWeight,
+        greenWeight,
+        blueWeight,
+        updateRedWeight,
+        updateGreenWeight,
+        updateBlueWeight
     } = props;
 
     return (
@@ -50,21 +58,42 @@ export default function AppDrawer(props) {
             >
 
                 <FormLabel component="legend">
-                    Settings
+                    Weight
                 </FormLabel>
 
                 <FormGroup className={classes.formGroup}>
                     <FormControlLabel
+                        classes={{label: classes.label}}
                         control={
-                            <Checkbox
-                                checked={gridVisible}
-                                color="primary"
-                                onChange={
-                                    (event) => drawGrid(event.target.checked)
-                                }
+                            <InputSlider
+                                value={redWeight}
+                                onChange={(value) => updateRedWeight(value)}
                             />
                         }
-                        label="Display Grid"
+                        label="Red"
+                        labelPlacement="start"
+                    />
+                    <FormControlLabel
+                        classes={{label: classes.label}}
+                        control={
+                            <InputSlider
+                                value={greenWeight}
+                                onChange={(value) => updateGreenWeight(value)}
+                            />
+                        }
+                        label="Green"
+                        labelPlacement="start"
+                    />
+                    <FormControlLabel
+                        classes={{label: classes.label}}
+                        control={
+                            <InputSlider
+                                value={blueWeight}
+                                onChange={(value) => updateBlueWeight(value)}
+                            />
+                        }
+                        label="Blue"
+                        labelPlacement="start"
                     />
                 </FormGroup>
             </FormControl>

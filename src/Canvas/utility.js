@@ -1,5 +1,6 @@
-import vertexShader from "./shader/vertex.glsl"
-import fragmentShader from "./shader/fragment.glsl"
+import {mat4} from "gl-matrix";
+import vertexShader from "./shader/vertex.glsl";
+import fragmentShader from "./shader/fragment.glsl";
 
 
 export const computeWindowSize = () => {
@@ -54,13 +55,11 @@ export const initShaderProgram = (gl, vsSource, fsSource) => {
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
     const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
-    // Create the shader program
     const shaderProgram = gl.createProgram();
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
     gl.linkProgram(shaderProgram);
 
-    // If creating the shader program failed, alert
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
         console.log(
             "Unable to initialize the shader program: "
@@ -76,13 +75,9 @@ export const initShaderProgram = (gl, vsSource, fsSource) => {
 export const loadShader = (gl, type, source) => {
     const shader = gl.createShader(type);
 
-    // Send the source to the shader object
     gl.shaderSource(shader, source);
-
-    // Compile the shader program
     gl.compileShader(shader);
 
-    // See if it compiled successfully
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         console.log(
             "An error occurred compiling the shaders: "
@@ -97,11 +92,7 @@ export const loadShader = (gl, type, source) => {
 
 
 export const initBuffers = (gl) => {
-    // Create a buffer for the square's positions.
     const positionBuffer = gl.createBuffer();
-
-    // Select the positionBuffer as the one to apply buffer
-    // operations to from here out.
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
     // Now create an array of positions for the square.
@@ -112,14 +103,65 @@ export const initBuffers = (gl) => {
         1.0, -1.0,
     ];
 
-    // Now pass the list of positions into WebGL to build the
-    // shape. We do this by creating a Float32Array from the
-    // JavaScript array, then use it to fill the current buffer.
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array(positions),
-        gl.STATIC_DRAW
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    return {position: positionBuffer};
+};
+
+
+export const drawScene = (gl, programInfo, buffers) => {
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clearDepth(1.0);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+
+    // Clear the canvas before we start drawing on it.
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    const fieldOfView = 45 * Math.PI / 180;   // in radians
+    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    const zNear = 0.1;
+    const zFar = 100.0;
+
+    const projectionMatrix = mat4.create();
+    mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+
+    const modelViewMatrix = mat4.create();
+    mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -6.0]);
+
+    {
+        const numComponents = 2;
+        const type = gl.FLOAT;
+        const normalize = false;
+        const stride = 0;
+        const offset = 0;
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+        gl.vertexAttribPointer(
+            programInfo.attribLocations.vertexPosition,
+            numComponents,
+            type,
+            normalize,
+            stride,
+            offset
+        );
+        gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+    }
+
+    gl.useProgram(programInfo.program);
+
+    gl.uniformMatrix4fv(
+        programInfo.uniformLocations.projectionMatrix,
+        false,
+        projectionMatrix
+    );
+    gl.uniformMatrix4fv(
+        programInfo.uniformLocations.modelViewMatrix,
+        false,
+        modelViewMatrix
     );
 
-    return {position: positionBuffer};
+    {
+        const offset = 0;
+        const vertexCount = 4;
+        gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+    }
 };

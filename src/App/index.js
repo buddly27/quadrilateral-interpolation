@@ -17,10 +17,12 @@ const useStyles = makeStyles((theme) => ({
 export default function App() {
     const classes = useStyles();
     const [state, setState] = React.useState({
-        gridVisible: true,
+        redWeight: 50,
+        greenWeight: 50,
+        blueWeight: 50,
     });
 
-    const {gridVisible} = state;
+    const {redWeight, greenWeight, blueWeight} = state;
 
     return (
         <div className="App">
@@ -35,12 +37,20 @@ export default function App() {
                 </Toolbar>
             </AppBar>
             <AppDrawer
-                gridVisible={gridVisible}
-                drawGrid={(value) => setState({...state, gridVisible: value})}
+                redWeight={redWeight}
+                greenWeight={greenWeight}
+                blueWeight={blueWeight}
+                updateRedWeight={
+                    (value) => setState({...state, redWeight: value})
+                }
+                updateGreenWeight={
+                    (value) => setState({...state, greenWeight: value})
+                }
+                updateBlueWeight={
+                    (value) => setState({...state, blueWeight: value})
+                }
             />
-            <Canvas
-                gridVisible={gridVisible}
-            />
+            <Canvas />
         </div>
     );
 }

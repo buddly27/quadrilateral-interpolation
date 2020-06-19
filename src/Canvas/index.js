@@ -141,6 +141,8 @@ export default function Canvas(props) {
         const gl = canvas.current.getContext("webgl");
 
         const programInfo = utility.createProgramInfo(gl);
+        const buffers = utility.initBuffers(gl);
+        utility.drawScene(gl, programInfo, buffers);
 
     }, [canvas, origin, pointer, scale, gridVisible]);
 
