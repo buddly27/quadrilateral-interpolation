@@ -8,19 +8,25 @@
     "dependencies": {
         "@material-ui/core": "^4.10.0",
         "@material-ui/icons": "^4.9.1",
-        "@testing-library/jest-dom": "^4.2.4",
-        "@testing-library/react": "^9.3.2",
-        "@testing-library/user-event": "^7.1.2",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "react-scripts": "3.4.1"
     },
+    "devDependencies": {
+        "@rescripts/cli": "^0.0.11",
+        "@rescripts/rescript-env": "^0.0.10",
+        "@rescripts/utilities": "^0.0.7",
+        "@testing-library/jest-dom": "^4.2.4",
+        "@testing-library/react": "^9.3.2",
+        "@testing-library/user-event": "^7.1.2",
+        "glslify-loader": "^2.0.0",
+        "raw-loader": "^4.0.1"
+    },
     "scripts": {
-        "dev": "react-scripts start",
+        "dev": "rescripts start",
         "start": "serve -s build",
-        "build": "react-scripts build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject",
+        "build": "rescripts build",
+        "test": "rescripts test",
         "heroku-postbuild": "npm run build"
     },
     "eslintConfig": {

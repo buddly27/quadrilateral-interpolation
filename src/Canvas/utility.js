@@ -1,3 +1,7 @@
+import vertexShader from "./shader/vertex.glsl"
+import fragmentShader from "./shader/fragment.glsl"
+
+
 export const computeWindowSize = () => {
     const {innerWidth, innerHeight} = window;
     const coord = computeCoordinates(innerWidth, innerHeight);
@@ -24,137 +28,98 @@ export const computePosition = (x) => {
 };
 
 
-export const createShape = (origin, scale, vertices) => {
-    const shape = new Path2D();
+export const createProgramInfo = (gl) => {
+    const shaderProgram = initShaderProgram(gl, vertexShader, fragmentShader);
 
-    shape.moveTo(
-        origin.x + scale * vertices[0][0],
-        origin.y + scale * vertices[0][1] * -1
-    );
-
-    vertices.slice(1).forEach((vertex) => {
-        shape.lineTo(
-            origin.x + scale * vertex[0],
-            origin.y + scale * vertex[1] * -1
-        );
-    });
-
-    shape.closePath();
-    return shape;
+    return {
+        program: shaderProgram,
+        attribLocations: {
+            vertexPosition: gl.getAttribLocation(
+                shaderProgram, "aVertexPosition"
+            ),
+        },
+        uniformLocations: {
+            projectionMatrix: gl.getUniformLocation(
+                shaderProgram, "uProjectionMatrix"
+            ),
+            modelViewMatrix: gl.getUniformLocation(
+                shaderProgram, "uModelViewMatrix"
+            ),
+        },
+    }
 };
 
 
-export const drawGrid = (context, origin, width, height, scale) => {
-    context.setLineDash([]);
+export const initShaderProgram = (gl, vsSource, fsSource) => {
+    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
-    context.lineWidth = 1;
-    context.strokeStyle = "#e9e9e9";
-    context.globalAlpha = 1;
+    // Create the shader program
+    const shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
 
-    // Draw grid lines along X axis.
-    for (let index = 0; ; index += 1) {
-        const y = origin.y + (scale * index);
-        if (y > Math.floor(height))
-            break;
-
-        context.beginPath();
-        context.moveTo(0, y);
-        context.lineTo(width, y);
-        context.stroke();
+    // If creating the shader program failed, alert
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        console.log(
+            "Unable to initialize the shader program: "
+            + gl.getProgramInfoLog(shaderProgram)
+        );
+        return null;
     }
 
-    for (let index = 1; ; index += 1) {
-        const y = origin.y - (scale * index);
-        if (y < 0)
-            break;
+    return shaderProgram;
+};
 
-        context.beginPath();
-        context.moveTo(0, y);
-        context.lineTo(width, y);
-        context.stroke();
+
+export const loadShader = (gl, type, source) => {
+    const shader = gl.createShader(type);
+
+    // Send the source to the shader object
+    gl.shaderSource(shader, source);
+
+    // Compile the shader program
+    gl.compileShader(shader);
+
+    // See if it compiled successfully
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.log(
+            "An error occurred compiling the shaders: "
+            + gl.getShaderInfoLog(shader)
+        );
+        gl.deleteShader(shader);
+        return null;
     }
 
-    // Draw grid lines along Y axis.
-    for (let index = 0; ; index += 1) {
-        const x = origin.x + (scale * index);
-        if (x > Math.floor(width))
-            break;
+    return shader;
+};
 
-        context.beginPath();
-        context.moveTo(x, 0);
-        context.lineTo(x, height);
-        context.stroke();
-    }
 
-    for (let index = 1; ; index += 1) {
-        const x = origin.x - (scale * index);
-        if (x < 0)
-            break;
+export const initBuffers = (gl) => {
+    // Create a buffer for the square's positions.
+    const positionBuffer = gl.createBuffer();
 
-        context.beginPath();
-        context.moveTo(x, 0);
-        context.lineTo(x, height);
-        context.stroke();
-    }
+    // Select the positionBuffer as the one to apply buffer
+    // operations to from here out.
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-    // Draw origin lines
-    context.lineWidth = 2;
-    context.strokeStyle = "#000";
+    // Now create an array of positions for the square.
+    const positions = [
+        -1.0, 1.0,
+        1.0, 1.0,
+        -1.0, -1.0,
+        1.0, -1.0,
+    ];
 
-    context.beginPath();
-    context.moveTo(0, origin.y);
-    context.lineTo(width, origin.y);
-    context.stroke();
+    // Now pass the list of positions into WebGL to build the
+    // shape. We do this by creating a Float32Array from the
+    // JavaScript array, then use it to fill the current buffer.
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array(positions),
+        gl.STATIC_DRAW
+    );
 
-    context.beginPath();
-    context.moveTo(origin.x, 0);
-    context.lineTo(origin.x, height);
-    context.stroke();
-
-    // Draw numbers.
-    context.font = "25px Sans-serif";
-    context.lineWidth = 3;
-    context.strokeStyle = "#FFF";
-    context.fillStyle = "#000";
-    context.textAlign = "center";
-    context.textBaseline = "middle";
-
-    // Ticks numbers along the X axis.
-    for (let index = 1; ; index += 1) {
-        const x = origin.x + (scale * index);
-        if (x > Math.floor(width))
-            break;
-
-        context.strokeText(`${index}`, x, origin.y + 30);
-        context.fillText(`${index}`, x, origin.y + 30);
-    }
-
-    for (let index = 1; ; index += 1) {
-        const x = origin.x - (scale * index);
-        if (x < 0)
-            break;
-
-        context.strokeText(`${-index}`, x, origin.y + 30);
-        context.fillText(`${-index}`, x, origin.y + 30);
-    }
-
-    // Ticks numbers along the Y axis.
-    for (let index = 1; ; index += 1) {
-        const y = origin.y + (scale * index);
-        if (y > Math.floor(height))
-            break;
-
-        context.strokeText(`${-index}`, origin.x - 25, y);
-        context.fillText(`${-index}`, origin.x - 25, y);
-    }
-
-    for (let index = 1; ; index += 1) {
-        const y = origin.y - (scale * index);
-        if (y < 0)
-            break;
-
-        context.strokeText(`${index}`, origin.x - 25, y);
-        context.fillText(`${index}`, origin.x - 25, y);
-
-    }
+    return {position: positionBuffer};
 };

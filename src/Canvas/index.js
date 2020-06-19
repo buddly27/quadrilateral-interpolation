@@ -138,13 +138,10 @@ export default function Canvas(props) {
     // Draw polygons when component is setup.
     React.useEffect(() => {
         const {width, height} = canvas.current;
-        const context = canvas.current.getContext("2d");
-        context.clearRect(0, 0, width, height);
+        const gl = canvas.current.getContext("webgl");
 
-        // Draw grid if required.
-        if (gridVisible) {
-            utility.drawGrid(context, origin, width, height, scale);
-        }
+        const programInfo = utility.createProgramInfo(gl);
+
     }, [canvas, origin, pointer, scale, gridVisible]);
 
     return (
