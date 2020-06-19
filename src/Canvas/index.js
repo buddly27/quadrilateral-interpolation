@@ -4,7 +4,6 @@ import "./style.css";
 
 
 export default function Canvas(props) {
-    const {gridVisible} = props;
 
     const size = utility.computeWindowSize();
     const canvas = React.useRef(null);
@@ -144,7 +143,7 @@ export default function Canvas(props) {
         const buffers = utility.initBuffers(gl);
         utility.drawScene(gl, programInfo, buffers);
 
-    }, [canvas, origin, pointer, scale, gridVisible]);
+    }, [canvas, origin, pointer, scale]);
 
     return (
         <canvas

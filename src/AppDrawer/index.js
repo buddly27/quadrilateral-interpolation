@@ -6,7 +6,9 @@ import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import InputSlider from "./InputSlider.js";
+import Grid from "@material-ui/core/Grid";
+import Slider from "@material-ui/core/Slider";
+import Typography from "@material-ui/core/Typography";
 
 
 const drawerWidth = 320;
@@ -19,6 +21,9 @@ const useStyles = makeStyles((theme) => ({
     },
     label: {
         minWidth: 60
+    },
+    value: {
+        minWidth: 30
     },
     drawerPaper: {
         width: drawerWidth,
@@ -34,14 +39,16 @@ const useStyles = makeStyles((theme) => ({
 
 export default function AppDrawer(props) {
     const classes = useStyles();
-    const {
-        redWeight,
-        greenWeight,
-        blueWeight,
-        updateRedWeight,
-        updateGreenWeight,
-        updateBlueWeight
-    } = props;
+    const {weights, updateWeight} = props;
+
+    const priorities = {red: 1, green: 2, blue: 3, black:  4};
+    const colors = Object.keys(weights).sort(
+        (a, b) => priorities[a] || 99 - priorities[b] || 99
+    );
+
+    const minimum = 0.1;
+    const maximum = 100;
+    const step = 1;
 
     return (
         <Drawer
@@ -62,42 +69,47 @@ export default function AppDrawer(props) {
                 </FormLabel>
 
                 <FormGroup className={classes.formGroup}>
-                    <FormControlLabel
-                        classes={{label: classes.label}}
-                        control={
-                            <InputSlider
-                                value={redWeight}
-                                onChange={(value) => updateRedWeight(value)}
-                            />
-                        }
-                        label="Red"
-                        labelPlacement="start"
-                    />
-                    <FormControlLabel
-                        classes={{label: classes.label}}
-                        control={
-                            <InputSlider
-                                value={greenWeight}
-                                onChange={(value) => updateGreenWeight(value)}
-                            />
-                        }
-                        label="Green"
-                        labelPlacement="start"
-                    />
-                    <FormControlLabel
-                        classes={{label: classes.label}}
-                        control={
-                            <InputSlider
-                                value={blueWeight}
-                                onChange={(value) => updateBlueWeight(value)}
-                            />
-                        }
-                        label="Blue"
-                        labelPlacement="start"
-                    />
+                    {
+                        colors.map((color, index) => {
+                            const value = weights[color] || 0;
+                            const onChange = (event, value) =>
+                                updateWeight(color, value);
+
+                            return (
+                                <FormControlLabel
+                                    classes={{label: classes.label}}
+                                    control={
+                                        <Grid
+                                            container
+                                            spacing={2}
+                                            alignItems="center"
+                                        >
+                                            <Grid item xs>
+                                                <Slider
+                                                    value={value}
+                                                    min={minimum}
+                                                    max={maximum}
+                                                    step={step}
+                                                    onChange={onChange}
+                                                />
+                                            </Grid>
+                                            <Grid item>
+                                                <Typography
+                                                    className={classes.value}>
+                                                    {value}
+                                                </Typography>
+                                            </Grid>
+                                        </Grid>
+                                    }
+                                    label={color}
+                                    labelPlacement="start"
+                                    key={index}
+                                />
+                            )
+                        })
+                    }
                 </FormGroup>
             </FormControl>
         </Drawer>
     );
 }
-

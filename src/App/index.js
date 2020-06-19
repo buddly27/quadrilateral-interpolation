@@ -17,12 +17,10 @@ const useStyles = makeStyles((theme) => ({
 export default function App() {
     const classes = useStyles();
     const [state, setState] = React.useState({
-        redWeight: 50,
-        greenWeight: 50,
-        blueWeight: 50,
+        weights: {red: 50, green: 50, blue: 50, black: 50}
     });
 
-    const {redWeight, greenWeight, blueWeight} = state;
+    const {weights} = state;
 
     return (
         <div className="App">
@@ -37,20 +35,16 @@ export default function App() {
                 </Toolbar>
             </AppBar>
             <AppDrawer
-                redWeight={redWeight}
-                greenWeight={greenWeight}
-                blueWeight={blueWeight}
-                updateRedWeight={
-                    (value) => setState({...state, redWeight: value})
-                }
-                updateGreenWeight={
-                    (value) => setState({...state, greenWeight: value})
-                }
-                updateBlueWeight={
-                    (value) => setState({...state, blueWeight: value})
+                weights={weights}
+                updateWeight={
+                    (color, value) => setState(
+                        {...state, weights: {...weights, [color]: value}}
+                    )
                 }
             />
-            <Canvas />
+            <Canvas
+                weights={weights}
+            />
         </div>
     );
 }
