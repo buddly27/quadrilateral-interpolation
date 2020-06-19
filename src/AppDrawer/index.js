@@ -41,7 +41,7 @@ export default function AppDrawer(props) {
     const classes = useStyles();
     const {weights, updateWeight} = props;
 
-    const priorities = {red: 1, green: 2, blue: 3, black:  4};
+    const priorities = {white: 0, red: 1, green: 2, blue: 3};
     const colors = Object.keys(weights).sort(
         (a, b) => priorities[a] || 99 - priorities[b] || 99
     );
@@ -95,7 +95,8 @@ export default function AppDrawer(props) {
                                             </Grid>
                                             <Grid item>
                                                 <Typography
-                                                    className={classes.value}>
+                                                    className={classes.value}
+                                                >
                                                     {value}
                                                 </Typography>
                                             </Grid>

@@ -4,9 +4,10 @@ import "./style.css";
 
 
 export default function Canvas(props) {
-
     const size = utility.computeWindowSize();
     const canvas = React.useRef(null);
+
+    const {weights} = props;
 
     const [state, setState] = React.useState({
         scale: 50,
@@ -141,9 +142,9 @@ export default function Canvas(props) {
 
         const programInfo = utility.createProgramInfo(gl);
         const buffers = utility.initBuffers(gl);
-        utility.drawScene(gl, programInfo, buffers);
+        utility.drawScene(gl, width, height, programInfo, buffers);
 
-    }, [canvas, origin, pointer, scale]);
+    }, [canvas, origin, pointer, scale, weights]);
 
     return (
         <canvas
