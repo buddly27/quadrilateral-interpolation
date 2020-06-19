@@ -6,7 +6,7 @@ import Typography from "@material-ui/core/Typography";
 
 
 const useStyles = makeStyles(() => ({
-    label: {
+    value: {
         minWidth: 30
     }
 }));
@@ -36,7 +36,7 @@ export default function InputSlider(props) {
                 />
             </Grid>
             <Grid item>
-                <Typography className={classes.label}>
+                <Typography className={classes.value}>
                     {value}
                 </Typography>
             </Grid>
