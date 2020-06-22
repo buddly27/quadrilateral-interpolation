@@ -6,9 +6,6 @@ import "./style.css";
 
 export default function Canvas(props) {
     const canvas = React.useRef(null);
-
-    const {weights} = props;
-
     const [state, setState] = React.useState({
         gl: null,
         program: null,
@@ -22,6 +19,7 @@ export default function Canvas(props) {
         }
     });
 
+    const {weights} = props;
     const {gl, program, attribLocations, buffers} = state;
 
     // Initialize GL context.
