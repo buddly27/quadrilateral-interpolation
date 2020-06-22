@@ -24,10 +24,10 @@ export default function Canvas(props) {
 
     // Initialize GL context.
     const onInitiate = React.useCallback(() => {
-        const state = initialize(canvas);
+        const state = initialize(canvas, weights);
         setState(prevState => ({...prevState, ...state}));
 
-    }, [canvas]);
+    }, [canvas, weights]);
 
     // Render scene.
     const onRender = React.useCallback(() => {
@@ -54,8 +54,7 @@ export default function Canvas(props) {
 }
 
 
-
-const initialize = (canvas) => {
+const initialize = (canvas, weights) => {
     const gl = canvas.current.getContext("webgl");
 
     // Initiate shader program.
@@ -148,12 +147,7 @@ const render = (gl, program, attribLocations, buffers) => {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
-    gl.clearDepth(1.0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
-
-    // Clear the canvas before we start drawing on it.
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     const {vertexPosition, vertexColor} = attribLocations;
     const {position, color} = buffers;
@@ -171,11 +165,7 @@ const render = (gl, program, attribLocations, buffers) => {
     gl.useProgram(program);
 
     // Draw elements.
-    {
-        const offset = 0;
-        const vertexCount = 4;
-        gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
-    }
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 };
 
 
