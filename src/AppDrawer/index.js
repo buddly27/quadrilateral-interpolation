@@ -47,8 +47,8 @@ export default function AppDrawer(props) {
     );
 
     const minimum = 0.1;
-    const maximum = 100;
-    const step = 1;
+    const maximum = 2;
+    const step = 0.1;
 
     return (
         <Drawer

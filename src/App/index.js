@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
 export default function App() {
     const classes = useStyles();
     const [state, setState] = React.useState({
-        weights: {white: 50, red: 50, green: 50, blue: 50}
+        weights: {white: 1, red: 1, green: 1, blue: 1}
     });
 
     const {weights} = state;
