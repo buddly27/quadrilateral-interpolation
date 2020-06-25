@@ -1,6 +1,6 @@
 # Quadrilateral Interpolation
 
-Animation to demonstrate quadrilateral interpolation with color.
+Animation to demonstrate quadrilateral interpolation of colors.
 
 ## Building
 
@@ -8,7 +8,7 @@ Build and start the application as follow:
 
 ```bash
 yarn install
-yarn start
+yarn dev
 ```
 
 ## Learn More
