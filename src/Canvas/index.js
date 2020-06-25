@@ -9,34 +9,34 @@ export default function Canvas(props) {
     const [state, setState] = React.useState({
         gl: null,
         program: null,
-        attribLocations: {
-            vertexPosition: null,
-            vertexColor: null,
+        locations: {
+            position: null,
+            colors: null,
+            weights: null
         },
         buffers: {
-            position: null,
-            color: null,
+            position: null
         }
     });
 
     const {weights} = props;
-    const {gl, program, attribLocations, buffers} = state;
+    const {gl, program, locations, buffers} = state;
 
     // Initialize GL context.
     const onInitiate = React.useCallback(() => {
-        const state = initialize(canvas, weights);
+        const state = initialize(canvas);
         setState(prevState => ({...prevState, ...state}));
 
-    }, [canvas, weights]);
+    }, [canvas]);
 
     // Render scene.
     const onRender = React.useCallback(() => {
         if (!program)
             return;
 
-        render(gl, program, attribLocations, buffers);
+        render(gl, program, locations, buffers, weights);
 
-    }, [gl, program, attribLocations, buffers]);
+    }, [gl, program, locations, buffers, weights]);
 
     // Handle resizing event.
     React.useEffect(() => {
@@ -54,7 +54,7 @@ export default function Canvas(props) {
 }
 
 
-const initialize = (canvas, weights) => {
+const initialize = (canvas) => {
     const gl = canvas.current.getContext("webgl");
 
     // Initiate shader program.
@@ -65,38 +65,20 @@ const initialize = (canvas, weights) => {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(
         gl.ARRAY_BUFFER,
-        new Float32Array([
-            -1.0, 1.0,
-            1.0, 1.0,
-            -1.0, -1.0,
-            1.0, -1.0,
-        ]),
-        gl.STATIC_DRAW
-    );
-
-    const colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([
-            1.0, 1.0, 1.0, 1.0,
-            1.0, 0.0, 0.0, 1.0,
-            0.0, 1.0, 0.0, 1.0,
-            0.0, 0.0, 1.0, 1.0,
-        ]),
+        new Float32Array([-1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0]),
         gl.STATIC_DRAW
     );
 
     return {
         gl: gl,
         program: program,
-        attribLocations: {
-            vertexPosition: gl.getAttribLocation(program, "vertexPosition"),
-            vertexColor:  gl.getAttribLocation(program, "vertexColor")
+        locations: {
+            position: gl.getAttribLocation(program, "position"),
+            colors: gl.getUniformLocation(program, "colors"),
+            weights: gl.getUniformLocation(program, "weights")
         },
         buffers: {
             position: positionBuffer,
-            color: colorBuffer
         }
     };
 };
@@ -142,27 +124,33 @@ const loadShader = (gl, type, source) => {
 };
 
 
-const render = (gl, program, attribLocations, buffers) => {
+const render = (gl, program, locations, buffers, weights) => {
     resize(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    const {vertexPosition, vertexColor} = attribLocations;
-    const {position, color} = buffers;
-
     // Set vertex position.
-    gl.bindBuffer(gl.ARRAY_BUFFER, position);
-    gl.vertexAttribPointer(vertexPosition, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vertexPosition);
-
-    // Set color.
-    gl.bindBuffer(gl.ARRAY_BUFFER, color);
-    gl.vertexAttribPointer(vertexColor, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vertexColor);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+    gl.vertexAttribPointer(locations.position, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(locations.position);
 
     gl.useProgram(program);
+
+    // Set uniforms
+    gl.uniform4fv(locations.colors, [
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 0.0, 1.0, 1.0,
+    ]);
+    gl.uniform1fv(locations.weights, [
+        weights.white,
+        weights.red,
+        weights.green,
+        weights.blue,
+    ]);
 
     // Draw elements.
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

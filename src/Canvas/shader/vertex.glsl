@@ -1,9 +1,8 @@
-attribute vec4 vertexPosition;
-attribute vec4 vertexColor;
+attribute vec4 position;
 
-varying lowp vec4 color;
+varying highp vec4 p;
 
 void main() {
-    gl_Position = vertexPosition;
-    color = vertexColor;
+    gl_Position = position;
+    p = position;
 }
