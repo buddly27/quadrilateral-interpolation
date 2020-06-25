@@ -43,7 +43,7 @@ float resolve(float a, float b, float c) {
 
 
 /*
- * Compute pixel color from interpolation of color and vertex matrices.
+ * Compute pixel color from interpolation of four vertices.
  *
  * The interpolated vertex position is calculated from:
  *   P = α1v1 + α2v2 + α3v3 + α4v4
@@ -84,7 +84,7 @@ float resolve(float a, float b, float c) {
  *   (b x d)λ^2 + (b x c + a x d)λ + (a x c) = 0
  *
  * Solving these two equations give µ and λ values, which give "αi" coefficients
- * values.
+ * values that can then be applied to the colors.
  *
  */
 void main() {
@@ -127,12 +127,17 @@ void main() {
         (1.0 - lambda) * mu
     );
 
+    // Adjust alpha from weights
+    alpha *= vec4(weights[0], weights[1], weights[2], weights[3]);
+    alpha /= alpha[0] + alpha[1] + alpha[2] + alpha[3];
+
+
     // Interpolate color using barycentric coordinates.
     vec4 color = (
-        alpha[0] * colors[0] * weights[0]
-        + alpha[1] * colors[1] * weights[1]
-        + alpha[2] * colors[2] * weights[2]
-        + alpha[3] * colors[3] * weights[3]
+        alpha[0] * colors[0]
+        + alpha[1] * colors[1]
+        + alpha[2] * colors[2]
+        + alpha[3] * colors[3]
     );
 
     gl_FragColor = color;
