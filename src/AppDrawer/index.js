@@ -46,7 +46,7 @@ export default function AppDrawer(props) {
         (a, b) => priorities[a] || 99 - priorities[b] || 99
     );
 
-    const minimum = 0.1;
+    const minimum = 0;
     const maximum = 2;
     const step = 0.1;
 
